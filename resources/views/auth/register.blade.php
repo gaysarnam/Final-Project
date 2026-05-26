@@ -319,7 +319,7 @@
                 </div>
 
                 <div>
-                    <label class="form-label">Phone Number</label>
+                    <label class="form-label">WhatsApp Number</label>
                     <div class="phone-row">
                         <select id="country_code" name="country_code" class="form-select">
                             <option value="975" selected>🇧🇹 Bhutan (+975)</option>

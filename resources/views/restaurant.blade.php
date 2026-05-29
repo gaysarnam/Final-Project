@@ -223,7 +223,19 @@
         <i class="fa-solid fa-circle-check"></i>
         <div><div class="fw-bold">Success</div><div class="small text-muted">{{ session('booking_success') }}</div></div>
     </div>
-    <script>setTimeout(()=>{document.getElementById('booking-toast').remove();},6000);</script>
+    {{-- ✅ Only clear the saved order on genuine booking success --}}
+    <script>
+        try { localStorage.removeItem('tn_restaurant_order'); } catch(e) {}
+        setTimeout(()=>{ document.getElementById('booking-toast').remove(); }, 6000);
+    </script>
+@endif
+
+@if(session('error_conflict'))
+    <div id="conflict-toast" class="p-toast show toast-error" style="position:fixed;top:110px;right:30px;z-index:9999;transform:translateX(0);">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <div><div class="fw-bold">Booking Conflict</div><div class="small text-muted">{{ session('error_conflict') }}</div></div>
+    </div>
+    <script>setTimeout(()=>{ document.getElementById('conflict-toast').remove(); }, 6000);</script>
 @endif
 
     <div id="notification-center"></div>
@@ -439,8 +451,8 @@
                     <p class="footer-title">Contact</p>
                     <div class="contact-info">
                         Dewathang, Samdrupjongkhar<br>
-                        +975-17388263<br>
-                        tn@gmail.com
+                        +975-77343125<br>
+                        tnrestrocafe@gmail.com
                     </div>
                 </div>
             </div>
@@ -600,6 +612,10 @@
 
     /* ═══════════════════════════════════════════════════
        ORDER STATE
+       ─ Order is ONLY cleared from localStorage when the
+         server confirms a successful booking via
+         session('booking_success'). Conflicts, validation
+         failures, and page reloads all preserve the order.
     ═══════════════════════════════════════════════════ */
     const ORDER_STORAGE_KEY = 'tn_restaurant_order';
 
@@ -612,8 +628,9 @@
         } catch(e) { return {}; }
     }
 
-    function saveOrder()       { try { localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderMap)); } catch(e) {} }
-    function clearSavedOrder() { try { localStorage.removeItem(ORDER_STORAGE_KEY); } catch(e) {} }
+    function saveOrder() {
+        try { localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderMap)); } catch(e) {}
+    }
 
     function normaliseServerItems(raw) {
         if (!raw || typeof raw !== 'object') return {};
@@ -749,6 +766,8 @@
 
     /* ═══════════════════════════════════════════════════
        TAKEAWAY
+       ─ clearSavedOrder() removed from here.
+         Order is cleared only on booking_success (above).
     ═══════════════════════════════════════════════════ */
     function openTakeaway() {
         if (!IS_LOGGED_IN) { window.location.href = LOGIN_URL; return; }
@@ -774,13 +793,15 @@
         if (valid) {
             document.getElementById('hiddenTakeawayItems').value   = JSON.stringify(orderMap);
             document.getElementById('hiddenTakeawaySpecial').value = document.getElementById('spSpecialReq').value || '';
-            clearSavedOrder();
+            // ✅ Do NOT clear the order here — only cleared on confirmed booking_success
             document.getElementById('takeawayForm').submit();
         }
     }
 
     /* ═══════════════════════════════════════════════════
        TABLE HANDLING
+       ─ clearSavedOrder() removed from here.
+         Order is cleared only on booking_success (above).
     ═══════════════════════════════════════════════════ */
     function handleTableClick(tableNo, chairs) {
         if (!IS_LOGGED_IN) { window.location.href = LOGIN_URL; return; }
@@ -837,7 +858,11 @@
         const t = timeIn.value;
         if (!t) { document.getElementById('rTimeError').classList.add('show'); valid = false; }
         else { const [h] = t.split(':').map(Number); if (h < 10 || h >= 21) { document.getElementById('rTimeError').classList.add('show'); valid = false; } }
-        if (valid) { syncTableHiddenFields(); clearSavedOrder(); document.getElementById('resForm').submit(); }
+        if (valid) {
+            syncTableHiddenFields();
+            // ✅ Do NOT clear the order here — only cleared on confirmed booking_success
+            document.getElementById('resForm').submit();
+        }
     }
 
     /* ═══════════════════════════════════════════════════

@@ -384,8 +384,8 @@
                     <p class="footer-title">Contact</p>
                     <div class="contact-info">
                         Dewathang, Samdrupjongkhar<br>
-                        +975-17388263<br>
-                        tn@gmail.com
+                        +975-77343125<br>
+                        tnrestrocafe@gmail.com
                     </div>
                 </div>
             </div>

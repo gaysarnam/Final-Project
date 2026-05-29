@@ -234,14 +234,16 @@
         }
         .error-msg li { margin-bottom: 4px; }
         .error-msg li:last-child { margin-bottom: 0; }
-        
+
+        /* Phone help/error — only one shows at a time */
         #phone_help {
             font-size: 0.74rem;
             color: #f0f0f0;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            margin-top: 4px;
+            display: block;
         }
 
-        /* Phone validation error */
         #phone_error {
             display: none;
             font-size: 0.74rem;
@@ -322,22 +324,22 @@
                     <label class="form-label">WhatsApp Number</label>
                     <div class="phone-row">
                         <select id="country_code" name="country_code" class="form-select">
-                            <option value="975" selected>🇧🇹 Bhutan (+975)</option>
-                            <option value="91">🇮🇳 India (+91)</option>
-                            <option value="977">🇳🇵 Nepal (+977)</option>
-                            <option value="880">🇧🇩 Bangladesh (+880)</option>
-                            <option value="94">🇱🇰 Sri Lanka (+94)</option>
-                            <option value="960">🇲🇻 Maldives (+960)</option>
-                            <option value="66">🇹🇭 Thailand (+66)</option>
-                            <option value="65">🇸🇬 Singapore (+65)</option>
-                            <option value="60">🇲🇾 Malaysia (+60)</option>
-                            <option value="1">🇺🇸 USA (+1)</option>
-                            <option value="44">🇬🇧 UK (+44)</option>
-                            <option value="81">🇯🇵 Japan (+81)</option>
-                            <option value="82">🇰🇷 South Korea (+82)</option>
+                            <option value="975" selected>Bhutan (+975)</option>
+                            <option value="91">India (+91)</option>
+                            <option value="977">Nepal (+977)</option>
+                            <option value="880">Bangladesh (+880)</option>
+                            <option value="94">Sri Lanka (+94)</option>
+                            <option value="960">Maldives (+960)</option>
+                            <option value="66">Thailand (+66)</option>
+                            <option value="65">Singapore (+65)</option>
+                            <option value="60">Malaysia (+60)</option>
+                            <option value="1">USA (+1)</option>
+                            <option value="44">UK (+44)</option>
+                            <option value="81">Japan (+81)</option>
+                            <option value="82">South Korea (+82)</option>
                         </select>
                         <input id="phone_number" class="form-control" type="text" name="phone_number"
-                            value="{{ old('phone_number') }}" required placeholder="17XXXXXX"
+                            value="{{ old('phone_number') }}" required placeholder="XXXXXXXX"
                             onkeypress="return isNumber(event)" maxlength="8" />
                     </div>
                     <small id="phone_help">Bhutan: starts with 17, 16, or 77 — exactly 8 digits.</small>
@@ -366,85 +368,84 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ── Phone rules per country code ──
-        // pattern: regex to validate, length: exact digits (or [min,max]), placeholder, help text
         const phoneRules = {
             "975": {
                 pattern: /^(17|16|77)\d+$/,
                 length: 8,
-                placeholder: "17XXXXXX",
+                placeholder: "XXXXXXXX",
                 help: "Bhutan: starts with 17, 16, or 77 — exactly 8 digits."
             },
             "91": {
                 pattern: /^[6-9]\d+$/,
                 length: 10,
-                placeholder: "9XXXXXXXXX",
+                placeholder: "XXXXXXXXXX",
                 help: "India: starts with 6–9 — exactly 10 digits."
             },
             "977": {
                 pattern: /^(97|98)\d+$/,
                 length: 10,
-                placeholder: "98XXXXXXXX",
+                placeholder: "XXXXXXXXXX",
                 help: "Nepal: starts with 97 or 98 — exactly 10 digits."
             },
             "880": {
                 pattern: /^01\d+$/,
                 length: 11,
-                placeholder: "01XXXXXXXXX",
+                placeholder: "XXXXXXXXXXX",
                 help: "Bangladesh: starts with 01 — exactly 11 digits."
             },
             "94": {
                 pattern: /^07\d+$/,
                 length: 10,
-                placeholder: "07XXXXXXXX",
+                placeholder: "XXXXXXXXXX",
                 help: "Sri Lanka: starts with 07 — exactly 10 digits."
             },
             "960": {
                 pattern: /^[79]\d+$/,
                 length: 7,
-                placeholder: "7XXXXXX",
+                placeholder: "XXXXXXX",
                 help: "Maldives: starts with 7 or 9 — exactly 7 digits."
             },
             "66": {
                 pattern: /^0[689]\d+$/,
                 length: 10,
-                placeholder: "08XXXXXXXX",
+                placeholder: "XXXXXXXXXX",
                 help: "Thailand: starts with 06, 08, or 09 — exactly 10 digits."
             },
             "65": {
                 pattern: /^[89]\d+$/,
                 length: 8,
-                placeholder: "8XXXXXXX",
+                placeholder: "XXXXXXXX",
                 help: "Singapore: starts with 8 or 9 — exactly 8 digits."
             },
             "60": {
                 pattern: /^01\d+$/,
                 lengthMin: 10,
                 lengthMax: 11,
-                placeholder: "01XXXXXXXXX",
+                placeholder: "XXXXXXXXXXX",
                 help: "Malaysia: starts with 01 — 10 to 11 digits."
             },
             "1": {
                 pattern: /^[2-9]\d+$/,
                 length: 10,
-                placeholder: "2XXXXXXXXX",
+                placeholder: "XXXXXXXXXX",
                 help: "USA: starts with 2–9 — exactly 10 digits."
             },
             "44": {
                 pattern: /^07\d+$/,
                 length: 11,
-                placeholder: "07XXXXXXXXX",
+                placeholder: "XXXXXXXXXXX",
                 help: "UK: starts with 07 — exactly 11 digits."
             },
             "81": {
                 pattern: /^0[789]\d+$/,
                 length: 11,
-                placeholder: "09XXXXXXXXX",
+                placeholder: "XXXXXXXXXXX",
                 help: "Japan: starts with 07, 08, or 09 — exactly 11 digits."
             },
             "82": {
                 pattern: /^01\d+$/,
                 length: 11,
-                placeholder: "01XXXXXXXXX",
+                placeholder: "XXXXXXXXXXX",
                 help: "South Korea: starts with 01 — exactly 11 digits."
             }
         };
@@ -476,6 +477,7 @@
             const rule = phoneRules[code];
             phoneInput.value = "";
             phoneError.style.display = "none";
+            phoneHelp.style.display = "block";   // show help text when country changes
             if (rule) {
                 const maxLen = rule.length || rule.lengthMax;
                 phoneInput.maxLength = maxLen;
@@ -483,7 +485,7 @@
                 phoneHelp.innerText = rule.help;
             } else {
                 phoneInput.maxLength = 15;
-                phoneInput.placeholder = "Enter phone number";
+                phoneInput.placeholder = "XXXXXXXXXXXXXXX";
                 phoneHelp.innerText = "Enter your mobile number.";
             }
         }
@@ -511,11 +513,15 @@
                 return false;
             }
 
+            // Valid — hide error, show help
             phoneError.style.display = "none";
+            phoneHelp.style.display = "block";
             return true;
         }
 
         function showPhoneError(msg) {
+            // Show error, hide help so there's no duplicate
+            phoneHelp.style.display = "none";
             phoneError.innerText = "⚠ " + msg;
             phoneError.style.display = "block";
         }

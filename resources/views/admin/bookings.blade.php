@@ -246,9 +246,23 @@
         .st-Confirmed { background: #c8e6c9; color: #2e7d32; }
         .st-Pending   { background: #fff3e0; color: #e65100; }
 
-        .actions-cell { display: flex; align-items: center; justify-content: center; font-size: 20px; color: black; }
-        .actions-cell i { cursor: pointer; transition: opacity 0.2s; }
-        .actions-cell i:hover { opacity: 0.65; }
+        /* ACTIONS CELL — whatsapp + eye */
+        .actions-cell { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .action-icon-btn {
+            width: 34px; height: 34px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.15s;
+            flex-shrink: 0;
+        }
+        .action-icon-btn:hover { transform: translateY(-1px); opacity: 0.85; }
+        .action-icon-btn i { font-size: 16px; line-height: 1; }
+        .action-btn-whatsapp { background: #25d366; color: white; }
+        .action-btn-whatsapp.disabled { background: #ccc; cursor: not-allowed; }
+        .action-btn-whatsapp.disabled:hover { transform: none; opacity: 1; }
+        .action-btn-eye { background: #f1f3f5; color: #333; border: 1px solid #e0e0e0; }
+        .action-btn-eye:hover { background: #e8eaed; }
 
         .date-label { display: block; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 1px; }
         .date-val   { display: block; font-size: 13px; color: #111; font-weight: 600; }
@@ -341,7 +355,7 @@
         .btn-cancel-modal  { border: 1.5px solid #ff5252; color: #ff5252; background: white; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
         .btn-confirm-modal { background: var(--primary-green); color: white; border: none; padding: 10px 25px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
 
-        /* CONFIRM PROMPT */
+        /* CONFIRM PROMPT (only used for Confirm action now) */
         .prompt-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .prompt-box { background: white; padding: 35px 30px; border-radius: 15px; text-align: center; width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .prompt-box p { font-weight: 700; font-size: 18px; margin-bottom: 8px; }
@@ -476,7 +490,7 @@
             .table-scroll-wrapper {
                 flex: unset;
                 overflow-y: visible;
-                overflow-x: auto;       /* allow horizontal scroll on very small screens */
+                overflow-x: auto;
             }
 
             /* Table — card-based layout */
@@ -505,7 +519,6 @@
                 word-break: break-word;
             }
 
-            /* Add inline label via data-label attribute rendered by pseudo-elements */
             tbody td::before {
                 content: attr(data-label);
                 font-weight: 800;
@@ -517,11 +530,12 @@
                 padding-top: 1px;
             }
 
-            /* Hide the pseudo-label for the actions column */
             tbody td:last-child::before { display: none; }
             tbody td:last-child { justify-content: flex-start; }
 
-            .actions-cell { font-size: 22px; }
+            .actions-cell { gap: 8px; }
+            .action-icon-btn { width: 36px; height: 36px; border-radius: 10px; }
+            .action-icon-btn i { font-size: 17px; }
 
             /* View modal — full width on mobile */
             .modal-card {
@@ -730,26 +744,42 @@
 
                             <td>
                                 <div class="actions-cell">
-                                    <i class="fa-solid fa-eye"
-                                        title="View Details"
-                                        data-order-items="{{ json_encode($booking->order_items) }}"
-                                        onclick="openViewModal(
-                                            '#{{ $booking->id }}',
-                                            '{{ addslashes($booking->user->first_name . ' ' . $booking->user->last_name) }}',
-                                            '{{ addslashes($booking->user->email) }}',
-                                            '{{ addslashes($booking->user->phone ?? '') }}',
-                                            '{{ $booking->service_type }}',
-                                            '{{ addslashes($booking->service_name) }}',
-                                            '{{ $booking->status }}',
-                                            '{{ \Carbon\Carbon::parse($booking->booking_date)->format('Y-m-d') }}',
-                                            '{{ $booking->service_type === 'Lodging' ? \Carbon\Carbon::parse($booking->check_out_date)->format('Y-m-d') : '' }}',
-                                            '{{ $booking->service_type !== 'Lodging' ? \Carbon\Carbon::parse($booking->booking_time)->format('g:i A') : '' }}',
-                                            '{{ addslashes($booking->special_request ?? 'None') }}',
-                                            {{ $booking->id }},
-                                            {{ $booking->number_of_guests ?? 'null' }},
-                                            this
-                                        )">
-                                    </i>
+                                    {{-- WhatsApp icon box --}}
+                                    @if($booking->user->phone)
+                                    <div class="action-icon-btn action-btn-whatsapp"
+                                         title="Chat on WhatsApp"
+                                         onclick="openWhatsApp('{{ $booking->user->phone }}')">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </div>
+                                    @else
+                                    <div class="action-icon-btn action-btn-whatsapp disabled"
+                                         title="No phone number">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </div>
+                                    @endif
+
+                                    {{-- Eye icon box --}}
+                                    <div class="action-icon-btn action-btn-eye"
+                                         title="View Details"
+                                         data-order-items="{{ json_encode($booking->order_items) }}"
+                                         onclick="openViewModal(
+                                             '#{{ $booking->id }}',
+                                             '{{ addslashes($booking->user->first_name . ' ' . $booking->user->last_name) }}',
+                                             '{{ addslashes($booking->user->email) }}',
+                                             '{{ addslashes($booking->user->phone ?? '') }}',
+                                             '{{ $booking->service_type }}',
+                                             '{{ addslashes($booking->service_name) }}',
+                                             '{{ $booking->status }}',
+                                             '{{ \Carbon\Carbon::parse($booking->booking_date)->format('Y-m-d') }}',
+                                             '{{ $booking->service_type === 'Lodging' ? \Carbon\Carbon::parse($booking->check_out_date)->format('Y-m-d') : '' }}',
+                                             '{{ $booking->service_type !== 'Lodging' ? \Carbon\Carbon::parse($booking->booking_time)->format('g:i A') : '' }}',
+                                             '{{ addslashes($booking->special_request ?? 'None') }}',
+                                             {{ $booking->id }},
+                                             {{ $booking->number_of_guests ?? 'null' }},
+                                             this
+                                         )">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -805,7 +835,7 @@
 </div>
 
 
-{{-- CONFIRM / CANCEL PROMPT --}}
+{{-- CONFIRM PROMPT (used only for Confirm action) --}}
 <div class="prompt-overlay" id="promptOverlay">
     <div class="prompt-box">
         <p id="promptTitle">Are you sure?</p>
@@ -903,6 +933,16 @@
     function clearNewBookingBadge() {
         localStorage.setItem(BADGE_KEY, Date.now().toString());
         document.getElementById('newBookingBadge').style.display = 'none';
+    }
+
+    /* ══════════════════════════════════════════
+       WHATSAPP
+    ══════════════════════════════════════════ */
+    function openWhatsApp(phone) {
+        // Strip all non-digit characters, then build wa.me link
+        const cleaned = phone.replace(/\D/g, '');
+        if (!cleaned) { showAlert('No Phone Number', 'This user does not have a phone number on file.'); return; }
+        window.open('https://wa.me/' + cleaned, '_blank');
     }
 
     /* ══════════════════════════════════════════
@@ -1149,12 +1189,16 @@
         if (action === 'confirm') {
             openPrompt('confirm', modalBookingId, route);
         } else {
-            openPrompt('cancel', modalBookingId, route);
+            // Cancel: skip prompt, go directly to cancellation reason modal
+            pendingAction    = 'cancel';
+            pendingRoute     = route;
+            pendingBookingId = modalBookingId;
+            openCancelMsgModal();
         }
     }
 
     /* ══════════════════════════════════════════
-       PROMPT
+       PROMPT (only used for Confirm now)
     ══════════════════════════════════════════ */
     let pendingAction    = null;
     let pendingRoute     = null;
@@ -1181,8 +1225,8 @@
     function closePrompt() { document.getElementById('promptOverlay').style.display = 'none'; }
 
     function handlePromptYes() {
+        // This is only called for confirm action now
         if (pendingAction === 'confirm') submitConfirmation();
-        else if (pendingAction === 'cancel') { closePrompt(); openCancelMsgModal(); }
     }
 
     function submitConfirmation() {
@@ -1205,7 +1249,6 @@
 
     function closeCancelMsgModal() {
         document.getElementById('cancelMsgOverlay').style.display = 'none';
-        if (pendingAction && pendingRoute) document.getElementById('promptOverlay').style.display = 'flex';
     }
 
     async function submitCancellation() {

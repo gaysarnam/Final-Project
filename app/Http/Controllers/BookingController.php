@@ -39,6 +39,18 @@ class BookingController extends Controller
             'check_out_date.after' => 'Check-out date must be after check-in date.',
         ]);
 
+        // =================================================================
+        // NEW CODE BLOCK STARTS
+        // =================================================================
+        if ($request->service_type === 'Restaurant') {
+            if ($this->isTableBusy($request->service_name, $request->booking_date, $request->booking_time)) {
+                return back()->withInput()->with('error_conflict', 'Sorry, ' . $request->service_name . ' is already reserved for this date and time. Please choose another slot or table.');
+            }
+        }
+        // =================================================================
+        // NEW CODE BLOCK ENDS
+        // =================================================================
+
         $orderItems = $request->order_items;
         if (is_string($orderItems)) {
             $orderItems = json_decode($orderItems, true);
@@ -116,6 +128,22 @@ class BookingController extends Controller
         }
 
         $request->validate($rules);
+
+        // =================================================================
+        // NEW CODE BLOCK STARTS
+        // =================================================================
+        if ($booking->service_type === 'Restaurant') {
+            $sName = $request->service_name ?? $booking->service_name;
+            $bDate = $request->booking_date;
+            $bTime = $request->booking_time ?? $booking->booking_time;
+
+            if ($this->isTableBusy($sName, $bDate, $bTime, $booking->id)) {
+                return back()->withInput()->with('error_conflict', 'Sorry, this table is already confirmed for another guest at this time.');
+            }
+        }
+        // =================================================================
+        // NEW CODE BLOCK ENDS
+        // =================================================================
 
         $orderItems = $request->order_items;
         if (is_string($orderItems)) {
@@ -286,5 +314,32 @@ class BookingController extends Controller
         $dateTimeStr = $date->format('Y-m-d');
         if ($booking->booking_time) $dateTimeStr .= ' ' . $booking->booking_time;
         try { return Carbon::parse($dateTimeStr); } catch (\Exception $e) { return null; }
+    }
+
+    // =================================================================
+    // NEW HELPER METHOD
+    // =================================================================
+    /**
+     * Check if a restaurant table is already confirmed for a specific date and time.
+     */
+    private function isTableBusy($serviceName, $date, $time, $excludeBookingId = null)
+    {
+        // We only restrict physical tables, not "Takeaway Order"
+        if ($serviceName === 'Takeaway Order') {
+            return false;
+        }
+
+        $query = Booking::where('service_type', 'Restaurant')
+            ->where('service_name', $serviceName)
+            ->where('booking_date', $date)
+            ->where('booking_time', $time)
+            ->where('status', 'Confirmed');
+
+        // If we are updating an existing booking, don't check against itself
+        if ($excludeBookingId) {
+            $query->where('id', '!=', $excludeBookingId);
+        }
+
+        return $query->exists();
     }
 }

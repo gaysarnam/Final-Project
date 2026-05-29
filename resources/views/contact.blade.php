@@ -324,7 +324,7 @@
                    class="contact-box box-email text-decoration-none text-dark d-block">
                     <div class="contact-icon-wrap"><i class="fa-solid fa-envelope contact-icon"></i></div>
                     <h3 class="box-title">Email</h3>
-                    <p class="box-text">tn@gmail.com</p>
+                    <p class="box-text">tnrestrocafe@gmail.com</p>
                 </a>
             </div>
 
@@ -421,8 +421,8 @@
                     <p class="footer-title">Contact</p>
                     <div class="contact-info">
                         Dewathang, Samdrupjongkhar<br>
-                        +975-17388263<br>
-                        tn@gmail.com
+                        +975-77343125<br>
+                        tnrestrocafe@gmail.com
                     </div>
                 </div>
             </div>
